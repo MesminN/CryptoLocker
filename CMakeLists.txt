@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 #set vcpkg env variables! You don't need that if you have set those environment variables
-#set(VCPKG_TARGET_TRIPLET x86-windows)
+#set(VCPKG_TARGET_TRIPLET x64-windows)
 #set(VCPKG_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/vcpkg)
 
 # Configure vcpkg
@@ -24,7 +24,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 #configuration for Boost library
 #list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-#find_package(Boost REQUIRED)
+#set(Boost_INCLUDE_DIR "./vcpkg_installed/x64-windows/include")
+#message(STATUS "Boost_INCLUDE_DIR = ${Boost_INCLUDE_DIR}")
 find_package(Boost REQUIRED COMPONENTS filesystem system)
 
 add_executable(CryptoLocker

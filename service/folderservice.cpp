@@ -2,7 +2,7 @@
 
 FolderService::FolderService() {
     // Initialisation de l'attribut username
-    m_username = "";//boost::system::user_info().username();
+    m_username = get_username();//boost::system::user_info().username();
 
     // Initialisation de la liste statique des parties de chemins à écarter
     m_exclude_paths.push_back("\\Windows");
@@ -13,6 +13,13 @@ FolderService::FolderService() {
     m_exclude_paths.push_back("\\Users\\" + m_username + "\\OneDrive");*/
     m_exclude_paths.push_back("\\AppData");
     m_exclude_paths.push_back("\\OneDrive");
+}
+
+std::string FolderService::get_username() {
+    char buffer[1024];
+    DWORD buffer_size = sizeof(buffer);
+    GetUserNameA(buffer, &buffer_size);
+    return buffer;
 }
 
 std::vector<std::string> FolderService::list_files() {
@@ -27,25 +34,29 @@ std::vector<std::string> FolderService::list_files() {
 }
 
 void FolderService::list_files_in_directory(boost::filesystem::path directory) {
-    for (boost::filesystem::directory_iterator it(directory); it != boost::filesystem::directory_iterator(); ++it) {
-        std::string path = it->path().string();
+    try {
+        for (boost::filesystem::directory_iterator it(directory); it != boost::filesystem::directory_iterator(); ++it) {
+            std::string path = it->path().string();
 
-        // Vérifie si le chemin contient l'une des parties de chemins à écarter
-        bool exclude = false;
-        for (const std::string& exclude_path : m_exclude_paths) {
-            if (path.find(exclude_path) != std::string::npos) {
-                exclude = true;
-                break;
+            // Vérifie si le chemin contient l'une des parties de chemins à écarter
+            bool exclude = false;
+            for (const std::string& exclude_path : m_exclude_paths) {
+                if (path.find(exclude_path) != std::string::npos) {
+                    exclude = true;
+                    break;
+                }
+            }
+
+            if (!exclude) {
+                if (boost::filesystem::is_regular_file(it->path())) {
+                    std::cout << it->path() << std::endl;
+                    m_data_files.push_back(path);
+                } else if (boost::filesystem::is_directory(it->path())) {
+                    list_files_in_directory(it->path());
+                }
             }
         }
-
-        if (!exclude) {
-            if (boost::filesystem::is_regular_file(it->path())) {
-                std::cout << it->path() << std::endl;
-                m_data_files.push_back(path);
-            } else if (boost::filesystem::is_directory(it->path())) {
-                list_files_in_directory(it->path());
-            }
-        }
+    } catch (const boost::filesystem::filesystem_error& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
     }
 }

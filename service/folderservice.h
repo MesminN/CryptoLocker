@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <windows.h>
 #include <boost/filesystem.hpp>
 #include <boost/config/user.hpp>
 
@@ -14,6 +15,7 @@ public:
 
 private:
     const std::vector<std::string> get_data_files() const { return m_data_files; }
+    std::string get_username();
     void list_files_in_directory(boost::filesystem::path directory);
     std::string m_username;
     std::vector<std::string> m_exclude_paths;
