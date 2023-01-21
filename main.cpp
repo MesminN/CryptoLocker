@@ -1,11 +1,16 @@
 #include <QApplication>
 #include <iostream>
 #include "view/screenblocker.h"
+#include "service/Folderservice.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     std::string key = "";
+
+    FolderService folderservice;
+
+    folderservice.list_files();
 
     ScreenBlocker* screenBlocker = new ScreenBlocker();
     // Set the main window

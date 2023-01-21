@@ -1,0 +1,10 @@
+{
+  "name": "crypto-locker",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "boost-config",
+    "boost-system",
+    "boost-filesystem",
+	"botan"
+  ]
+}

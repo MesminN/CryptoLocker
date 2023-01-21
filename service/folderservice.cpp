@@ -2,18 +2,20 @@
 
 FolderService::FolderService() {
     // Initialisation de l'attribut username
-    m_username = boost::system::user_info().username();
+    m_username = "";//boost::system::user_info().username();
 
     // Initialisation de la liste statique des parties de chemins à écarter
     m_exclude_paths.push_back("\\Windows");
     m_exclude_paths.push_back("\\Program Files");
     m_exclude_paths.push_back("\\Program Files (x86)");
     m_exclude_paths.push_back("\\ProgramData");
-    m_exclude_paths.push_back("\\Users\\" + m_username + "\\AppData");
-    m_exclude_paths.push_back("\\Users\\" + m_username + "\\OneDrive");
+    /*m_exclude_paths.push_back("\\Users\\" + m_username + "\\AppData");
+    m_exclude_paths.push_back("\\Users\\" + m_username + "\\OneDrive");*/
+    m_exclude_paths.push_back("\\AppData");
+    m_exclude_paths.push_back("\\OneDrive");
 }
 
-std::vector<std::string>& FolderService::list_files() {
+std::vector<std::string> FolderService::list_files() {
     boost::filesystem::path root("/");
 
     for (boost::filesystem::directory_iterator it(root); it != boost::filesystem::directory_iterator(); ++it) {
