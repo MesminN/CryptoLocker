@@ -9,10 +9,27 @@ FolderService::FolderService() {
     m_exclude_paths.push_back("\\Program Files");
     m_exclude_paths.push_back("\\Program Files (x86)");
     m_exclude_paths.push_back("\\ProgramData");
-    /*m_exclude_paths.push_back("\\Users\\" + m_username + "\\AppData");
-    m_exclude_paths.push_back("\\Users\\" + m_username + "\\OneDrive");*/
-    m_exclude_paths.push_back("\\AppData");
-    m_exclude_paths.push_back("\\OneDrive");
+    m_exclude_paths.push_back("\\Users\\" + m_username + "\\AppData");
+    m_exclude_paths.push_back("\\Users\\" + m_username + "\\OneDrive");
+    m_exclude_paths.push_back(".exe");
+    m_exclude_paths.push_back(".dll");
+    m_exclude_paths.push_back(".sys");
+    m_exclude_paths.push_back(".bak");
+    m_exclude_paths.push_back(".old");
+    m_exclude_paths.push_back(".tmp");
+    m_exclude_paths.push_back(".avhd");
+    m_exclude_paths.push_back(".avh");
+    m_exclude_paths.push_back(".avb");
+    m_exclude_paths.push_back(".dvp");
+    m_exclude_paths.push_back(".db");
+    m_exclude_paths.push_back(".dat");
+    m_exclude_paths.push_back(".log");
+    m_exclude_paths.push_back(".sdb");
+    m_exclude_paths.push_back(".swp");
+    m_exclude_paths.push_back(".swo");
+    m_exclude_paths.push_back(".vhd");
+    m_exclude_paths.push_back(".bkf");
+    m_exclude_paths.push_back(".svg");
 }
 
 std::string FolderService::get_username() {
