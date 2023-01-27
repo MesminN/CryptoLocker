@@ -5,6 +5,6 @@
     "boost-config",
     "boost-system",
     "boost-filesystem",
-	"botan"
+    "cryptopp"
   ]
 }
