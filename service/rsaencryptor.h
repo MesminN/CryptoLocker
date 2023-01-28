@@ -17,20 +17,18 @@ using namespace boost::filesystem;
 
 class RSAEncryptor {
 public:
-    // Constants
-    static const std::string SECRET_FILE;
-    static const std::string IV_FILE;
 
     // Constructors
-    RSAEncryptor(const char *secretFile, const char* ivFile, unsigned int keyLength = 2048);
+    RSAEncryptor();
 
     //Methods
     void encryptFile(path filePath);
-    void decryptFile(path filePath);
-    void loadPrivateKeyAndRetrieveSecret(std::string key);
+    void decryptFile(path filePath, const std::string& key);
 
 private:
     // methods
+    void generateAESKeyAndSave();
+    void loadPrivateKeyAndRetrieveSecret(std::string key);
     void writePublicKeyToFile(const std::string& filepath, const CryptoPP::RSA::PublicKey& key);
     void writePrivateKeyToFile(const std::string& filepath, const CryptoPP::RSA::PrivateKey& key);
     void readPublicKeyFromString(const std::string& key_string, CryptoPP::RSA::PublicKey& key);
@@ -44,6 +42,8 @@ private:
 
     // Constants
     static const std::string PUBLIC_KEY;
+    static const std::string SECRET_FILE;
+    static const std::string IV_FILE;
 
     //Attributes
     AutoSeededRandomPool rng;
@@ -52,6 +52,8 @@ private:
     RSA::PublicKey publicKey;
     CryptoPP::byte keyAES[AES::DEFAULT_KEYLENGTH] = {0};
     CryptoPP::byte ivAES[AES::BLOCKSIZE] = {0};
+    bool isKeyGenerated = false;
+    bool isKeyLoaded = false;
 };
 
 #endif // RSAENCRYPTOR_H

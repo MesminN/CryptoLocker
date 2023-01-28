@@ -17,10 +17,12 @@ const string RSAEncryptor::PUBLIC_KEY =
 const string RSAEncryptor::SECRET_FILE = "secretkey.txt";
 const string RSAEncryptor::IV_FILE = "iv.txt";
 
-RSAEncryptor::RSAEncryptor(const char *secretFile, const char* ivFile, unsigned int keyLength) {
+RSAEncryptor::RSAEncryptor() {
     // generate RSA Keys
     readPublicKeyFromString(PUBLIC_KEY, publicKey);
+}
 
+void RSAEncryptor::generateAESKeyAndSave() {
     // generate AES Keys
     SecByteBlock keyBlock(sizeof(keyAES));
     SecByteBlock ivBlock(sizeof(ivAES));
@@ -39,11 +41,12 @@ RSAEncryptor::RSAEncryptor(const char *secretFile, const char* ivFile, unsigned 
     unsigned long long cipherSize = 0;
     CryptoPP::byte* encryptedSecret = encryptBytes(keyAES, sizeof(keyAES), cipherSize);
 
-    writeBytes(secretFile, encryptedSecret, cipherSize);
-    writeBytes(ivFile, ivAES, sizeof(ivAES));
+    writeBytes(SECRET_FILE, encryptedSecret, cipherSize);
+    writeBytes(IV_FILE, ivAES, sizeof(ivAES));
 
     delete[] encryptedSecret;
     encryptedSecret = NULL;
+    isKeyGenerated = true;
 }
 
 void RSAEncryptor::writePublicKeyToFile(const std::string& filepath, const CryptoPP::RSA::PublicKey& key)
@@ -91,7 +94,7 @@ void RSAEncryptor::writeBytes(const std::string& filePath, CryptoPP::byte* bytes
 }
 
 std::string RSAEncryptor::readBytesAsStringFromFile(const std::string& filePath, string s) {
-    CryptoPP::FileSource file(filePath.c_str(), true, new StringSink( s ));
+    CryptoPP::FileSource file(filePath.c_str(), true, new HexDecoder(new StringSink( s )));
     return s;
 }
 
@@ -167,9 +170,15 @@ void RSAEncryptor::loadPrivateKeyAndRetrieveSecret(std::string key) {
     for(int index = 0; index < iv.size(); index++) {
         this->ivAES[index] = iv.at(index);
     }
+
+    isKeyLoaded = true;
 }
 
 void RSAEncryptor::encryptFile(path filePath) {
+    if(!isKeyGenerated) {
+        generateAESKeyAndSave();
+    }
+
     string newFilePath = filePath.string() + ".enc";
 
     // Open input and output files
@@ -190,7 +199,11 @@ void RSAEncryptor::encryptFile(path filePath) {
     }
 }
 
-void RSAEncryptor::decryptFile(path filePath) {
+void RSAEncryptor::decryptFile(path filePath, const string& key ) {
+    if(!isKeyLoaded) {
+        loadPrivateKeyAndRetrieveSecret(key);
+    }
+
     string newFilePath = "x_" + filePath.string().substr(0, filePath.size() - 4);
 
     // Open input and output files
