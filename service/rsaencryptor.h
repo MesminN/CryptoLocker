@@ -23,9 +23,6 @@ public:
 
     // Constructors
     RSAEncryptor(const char *secretFile, const char* ivFile, unsigned int keyLength = 2048);
-    RSAEncryptor(const char *privFilename, const char *pubFilename,
-                 const char *secretFile, const char* ivFile,
-                 unsigned int keyLength = 2048);
 
     //Methods
     void encryptFile(path filePath);
@@ -34,9 +31,6 @@ public:
 
 private:
     // methods
-    void encodePrivateKey(const std::string& filename, const RSA::PrivateKey& key);
-    void encodePublicKey(const std::string& filename, const RSA::PublicKey& key);
-    void encode(const std::string& filename, const BufferedTransformation& bt);
     void writePublicKeyToFile(const std::string& filepath, const CryptoPP::RSA::PublicKey& key);
     void writePrivateKeyToFile(const std::string& filepath, const CryptoPP::RSA::PrivateKey& key);
     void readPublicKeyFromString(const std::string& key_string, CryptoPP::RSA::PublicKey& key);
@@ -45,7 +39,7 @@ private:
     void readBytesFromFile(const std::string& filepath, CryptoPP::byte* bytes, const size_t size);
     CryptoPP::byte* encryptBytes(const CryptoPP::byte* data, const size_t size, size_t& cipherSize);
     CryptoPP::byte* decryptBytes(const CryptoPP::byte* ciphertext, const size_t cipherSize, size_t& plainSize);
-    std::string readBytesAsStringFromFile(const std::string& filePath);
+    std::string readBytesAsStringFromFile(const std::string& filePath, std::string s);
     void writeBytes(const std::string& filePath, CryptoPP::byte* bytes, const size_t size);
 
     // Constants

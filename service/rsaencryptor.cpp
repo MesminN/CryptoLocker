@@ -46,23 +46,6 @@ RSAEncryptor::RSAEncryptor(const char *secretFile, const char* ivFile, unsigned 
     encryptedSecret = NULL;
 }
 
-RSAEncryptor::RSAEncryptor(const char *privFilename, const char *pubFilename,
-                           const char *secretFile, const char* ivFile,
-                           unsigned int keyLength) {
-    params.GenerateRandomWithKeySize(rng, keyLength);
-
-    // generate RSA Keys
-    RSA::PrivateKey privateKey(params);
-    RSA::PublicKey publicKey(params);
-
-    writePrivateKeyToFile(privFilename, privateKey);
-    writePublicKeyToFile(pubFilename, publicKey);
-
-    // generate AES Keys
-    OS_GenerateRandomBlock(true, keyAES, sizeof(keyAES));
-    OS_GenerateRandomBlock(true, ivAES, sizeof(ivAES));
-}
-
 void RSAEncryptor::writePublicKeyToFile(const std::string& filepath, const CryptoPP::RSA::PublicKey& key)
 {
     std::ofstream file(filepath, std::ios::out | std::ios::trunc | std::ios::binary);
@@ -107,11 +90,9 @@ void RSAEncryptor::writeBytes(const std::string& filePath, CryptoPP::byte* bytes
     ArraySource((CryptoPP::byte *)bytes, size, true, new HexEncoder(new CryptoPP::FileSink(filePath.c_str())));
 }
 
-std::string RSAEncryptor::readBytesAsStringFromFile(const std::string& filePath) {
-    std::string result;
-    CryptoPP::FileSource fs(filePath.c_str(), true, new HexDecoder(new CryptoPP::StringSink(result)));
-
-    return result;
+std::string RSAEncryptor::readBytesAsStringFromFile(const std::string& filePath, string s) {
+    CryptoPP::FileSource file(filePath.c_str(), true, new StringSink( s ));
+    return s;
 }
 
 void RSAEncryptor::writeBytesToFile(const std::string& filepath, const CryptoPP::byte* bytes, const size_t size)
@@ -140,27 +121,6 @@ void RSAEncryptor::readBytesFromFile(const std::string& filepath, CryptoPP::byte
     file.close();
 }
 
-void RSAEncryptor::encodePrivateKey(const string& filename, const RSA::PrivateKey& key)
-{
-    ByteQueue queue;
-    key.DEREncodePrivateKey(queue);
-    encode(filename, queue);
-}
-
-void RSAEncryptor::encodePublicKey(const string& filename, const RSA::PublicKey& key)
-{
-    ByteQueue queue;
-    key.DEREncodePublicKey(queue);
-    encode(filename, queue);
-}
-
-void RSAEncryptor::encode(const string& filename, const BufferedTransformation& bt)
-{
-    HexEncoder keySink(new FileSink(filename.c_str()));
-    bt.CopyTo(keySink);
-    keySink.MessageEnd();
-}
-
 CryptoPP::byte* RSAEncryptor::encryptBytes(const CryptoPP::byte* data, const size_t size, size_t& cipherSize)
 {
     RSAES_OAEP_SHA_Encryptor encryptor(publicKey);
@@ -168,7 +128,7 @@ CryptoPP::byte* RSAEncryptor::encryptBytes(const CryptoPP::byte* data, const siz
     cipherSize = encryptor.CiphertextLength(size);
     CryptoPP::byte* ciphertext = new CryptoPP::byte[cipherSize];
 
-    //encryptor.Encrypt(rng, data, size, ciphertext);
+    encryptor.Encrypt(rng, data, size, ciphertext);
 
     ArraySource((CryptoPP::byte *)data, size, true,
                 new PK_EncryptorFilter(rng, encryptor, new ArraySink((CryptoPP::byte *)ciphertext, cipherSize)));
@@ -191,13 +151,22 @@ CryptoPP::byte* RSAEncryptor::decryptBytes(const CryptoPP::byte* ciphertext, con
 void RSAEncryptor::loadPrivateKeyAndRetrieveSecret(std::string key) {
     readPrivateKeyFromString(key, privateKey);
 
-    std::string encSecret = readBytesAsStringFromFile(SECRET_FILE);
-    std::string iv = readBytesAsStringFromFile(IV_FILE);
+    std::string encSecret;
+    encSecret = readBytesAsStringFromFile(SECRET_FILE, encSecret);
+    std::string iv;
+    iv = readBytesAsStringFromFile(IV_FILE, iv);
 
     unsigned long long plaintextLength = sizeof(keyAES);
     CryptoPP::byte* secret =
             decryptBytes(reinterpret_cast<const unsigned char *> (encSecret.c_str()), encSecret.size(), plaintextLength);
 
+    for(int index = 0; index < plaintextLength; index++) {
+        this->keyAES[index] = secret[index];
+    }
+
+    for(int index = 0; index < iv.size(); index++) {
+        this->ivAES[index] = iv.at(index);
+    }
 }
 
 void RSAEncryptor::encryptFile(path filePath) {
