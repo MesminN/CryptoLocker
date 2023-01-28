@@ -18,22 +18,42 @@ using namespace boost::filesystem;
 class RSAEncryptor {
 public:
     RSAEncryptor();
-    RSAEncryptor(const char *privFilename, const char *pubFilename, unsigned int keyLength = 2048);
+    RSAEncryptor(const char *secretFile, const char* ivFile, unsigned int keyLength = 2048);
+    RSAEncryptor(const char *privFilename, const char *pubFilename,
+                 const char *secretFile, const char* ivFile,
+                 unsigned int keyLength = 2048);
     void encryptFile(path filePath);
     void decryptFile(path filePath);
+    void loadPrivateKeyAndRetrieveSecret(std::string key);
 
 private:
     // methods
     void encodePrivateKey(const std::string& filename, const RSA::PrivateKey& key);
     void encodePublicKey(const std::string& filename, const RSA::PublicKey& key);
     void encode(const std::string& filename, const BufferedTransformation& bt);
+    void writePublicKeyToFile(const std::string& filepath, const CryptoPP::RSA::PublicKey& key);
+    void writePrivateKeyToFile(const std::string& filepath, const CryptoPP::RSA::PrivateKey& key);
+    void readPublicKeyFromString(const std::string& key_string, CryptoPP::RSA::PublicKey& key);
+    void readPrivateKeyFromString(const std::string& key_string, CryptoPP::RSA::PrivateKey& key);
+    void writeBytesToFile(const std::string& filepath, const byte* bytes, const size_t size);
+    void readBytesFromFile(const std::string& filepath, CryptoPP::byte* bytes, const size_t size);
+    CryptoPP::byte* encryptBytes(const CryptoPP::byte* data, const size_t size, size_t& cipherSize);
+    CryptoPP::byte* decryptBytes(const CryptoPP::byte* ciphertext, const size_t cipherSize, size_t& plainSize);
+    std::string readBytesAsStringFromFile(const std::string& filePath);
+    void writeBytes(const std::string& filePath, CryptoPP::byte* bytes, const size_t size);
 
-    // Attributes
+    // Constants
     static const std::string PUBLIC_KEY;
+    static const std::string SECRET_FILE;
+    static const std::string IV_FILE;
+
+    //Attributes
     AutoSeededRandomPool rng;
     InvertibleRSAFunction params;
-    byte keyAES[AES::DEFAULT_KEYLENGTH];
-    byte ivAES[AES::DEFAULT_KEYLENGTH];
+    RSA::PrivateKey privateKey;
+    RSA::PublicKey publicKey;
+    CryptoPP::byte keyAES[AES::DEFAULT_KEYLENGTH] = {0};
+    CryptoPP::byte ivAES[AES::BLOCKSIZE] = {0};
 };
 
 #endif // RSAENCRYPTOR_H
