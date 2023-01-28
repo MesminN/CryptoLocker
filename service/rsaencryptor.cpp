@@ -197,6 +197,8 @@ void RSAEncryptor::encryptFile(path filePath) {
     } catch(Exception ex) {
         cout<<ex.what()<<endl;
     }
+
+    remove(filePath);
 }
 
 void RSAEncryptor::decryptFile(path filePath, const string& key ) {
@@ -204,7 +206,7 @@ void RSAEncryptor::decryptFile(path filePath, const string& key ) {
         loadPrivateKeyAndRetrieveSecret(key);
     }
 
-    string newFilePath = "x_" + filePath.string().substr(0, filePath.size() - 4);
+    string newFilePath = filePath.string().substr(0, filePath.size() - 4);
 
     // Open input and output files
     ifstream inFile(filePath.string().c_str(), ios::binary);
@@ -222,4 +224,6 @@ void RSAEncryptor::decryptFile(path filePath, const string& key ) {
     } catch(Exception ex) {
         cout<<ex.what()<<endl;
     }
+
+    remove(filePath);
 }

