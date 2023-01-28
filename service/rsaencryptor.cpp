@@ -17,10 +17,6 @@ const string RSAEncryptor::PUBLIC_KEY =
 const string RSAEncryptor::SECRET_FILE = "secretkey.txt";
 const string RSAEncryptor::IV_FILE = "iv.txt";
 
-RSAEncryptor::RSAEncryptor() {
-    RSAEncryptor(SECRET_FILE.c_str(), IV_FILE.c_str());
-}
-
 RSAEncryptor::RSAEncryptor(const char *secretFile, const char* ivFile, unsigned int keyLength) {
     // generate RSA Keys
     readPublicKeyFromString(PUBLIC_KEY, publicKey);

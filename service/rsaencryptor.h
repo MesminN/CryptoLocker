@@ -17,11 +17,17 @@ using namespace boost::filesystem;
 
 class RSAEncryptor {
 public:
-    RSAEncryptor();
+    // Constants
+    static const std::string SECRET_FILE;
+    static const std::string IV_FILE;
+
+    // Constructors
     RSAEncryptor(const char *secretFile, const char* ivFile, unsigned int keyLength = 2048);
     RSAEncryptor(const char *privFilename, const char *pubFilename,
                  const char *secretFile, const char* ivFile,
                  unsigned int keyLength = 2048);
+
+    //Methods
     void encryptFile(path filePath);
     void decryptFile(path filePath);
     void loadPrivateKeyAndRetrieveSecret(std::string key);
@@ -44,8 +50,6 @@ private:
 
     // Constants
     static const std::string PUBLIC_KEY;
-    static const std::string SECRET_FILE;
-    static const std::string IV_FILE;
 
     //Attributes
     AutoSeededRandomPool rng;
