@@ -14,6 +14,17 @@ const string RSAEncryptor::PUBLIC_KEY =
         "07E26D97D2130EFB3E3E22649BC70D032EE7281A71E0C6E35D7FB4996667CD166F"
         "813646860C3E5C68188307DAF0111D717107AD23D7D1CC8FF3020111";
 
+const string RSAEncryptor::SIGNED_PUBLIC_KEY =
+        "55AD3DD2487831198E31D4981313DDBFE416A448ABEC99F0B2DB82DD3B27D0FA88C"
+        "7E98FF05C389551631E8BACD7A5B6FF6C438C5E6E1C076DF2EE55F740EC895B5245"
+        "2E8D6EE7F1FF160DF388B28D3C53A4DB39FD66F7D8C577D224A3F74CD1295208330"
+        "41C78F093E7CDA61D575EAABB7F361B837ECF019A3D7F3C0A21BB2F3513D9A68C3B"
+        "012E2C68150894AD7958CA22BC092FAE5D1EBB2DAC4B346B0CB201F9D63F36A0DDC"
+        "C0E6BE39B0DD78945EFFBE95EBF20C2FCA4190B4A5B1A6A4DDCF4AC712E0B3C5710"
+        "FB311CE3E9738D30978EAB92720492102DDFEA780A38BEEC325B1D2DCCB4737C0BF"
+        "24738951EE2039D8200C21313B9078B8BCDA1A92957";
+
+
 const string RSAEncryptor::SECRET_FILE = "secretkey.txt";
 const string RSAEncryptor::IV_FILE = "iv.txt";
 
@@ -151,6 +162,23 @@ CryptoPP::byte* RSAEncryptor::decryptBytes(const CryptoPP::byte* ciphertext, con
     return plaintext;
 }
 
+void RSAEncryptor::checkPrivateKey(RSA::PrivateKey privateKey) {
+    string signature, recovered;
+
+    StringSource(SIGNED_PUBLIC_KEY, true, new HexDecoder(new StringSink(signature)));
+
+    // Verify and Recover
+    RSASS<PSS, SHA256>::Verifier verifier(publicKey);
+    StringSource ss2(PUBLIC_KEY+signature, true,
+        new SignatureVerificationFilter(
+            verifier,
+            new HexDecoder(new StringSink(recovered)),
+            SignatureVerificationFilter::THROW_EXCEPTION |
+            SignatureVerificationFilter::PUT_MESSAGE
+      )
+    );
+}
+
 void RSAEncryptor::loadPrivateKeyAndRetrieveSecret(std::string key) {
     readPrivateKeyFromString(key, privateKey);
 
@@ -171,10 +199,12 @@ void RSAEncryptor::loadPrivateKeyAndRetrieveSecret(std::string key) {
         this->ivAES[index] = iv.at(index);
     }
 
+    // Check if it's the right key
+
     isKeyLoaded = true;
 }
 
-void RSAEncryptor::encryptFile(path filePath) {
+std::string RSAEncryptor::encryptFile(path filePath) {
     if(!isKeyGenerated) {
         generateAESKeyAndSave();
     }
@@ -188,23 +218,22 @@ void RSAEncryptor::encryptFile(path filePath) {
     CBC_Mode<AES>::Encryption encryptor;
     encryptor.SetKeyWithIV(keyAES, sizeof(keyAES), ivAES);
 
-    try {
-        FileSource fs(filePath.filename().c_str(), true,
-            new StreamTransformationFilter( encryptor,
-                new FileSink( newFilePath.c_str() )
-            )
-        );
-    } catch(Exception ex) {
-        cout<<ex.what()<<endl;
-    }
+    FileSource fs(filePath.filename().c_str(), true,
+        new StreamTransformationFilter( encryptor,
+            new FileSink( newFilePath.c_str() )
+        )
+    );
 
     remove(filePath);
+    return newFilePath;
 }
 
-void RSAEncryptor::decryptFile(path filePath, const string& key ) {
+std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
     if(!isKeyLoaded) {
         loadPrivateKeyAndRetrieveSecret(key);
     }
+
+    checkPrivateKey(privateKey);
 
     string newFilePath = filePath.string().substr(0, filePath.size() - 4);
 
@@ -215,15 +244,12 @@ void RSAEncryptor::decryptFile(path filePath, const string& key ) {
     CBC_Mode<AES>::Decryption decryptor;
     decryptor.SetKeyWithIV(keyAES, sizeof(keyAES), ivAES);
 
-    try {
-        FileSource fs( filePath.filename().c_str(), true,
-            new StreamTransformationFilter( decryptor,
-                new FileSink( newFilePath.c_str() )
-            )
-        );
-    } catch(Exception ex) {
-        cout<<ex.what()<<endl;
-    }
+    FileSource fs( filePath.filename().c_str(), true,
+        new StreamTransformationFilter( decryptor,
+            new FileSink(newFilePath.c_str() )
+        )
+    );
 
     remove(filePath);
+    return newFilePath;
 }

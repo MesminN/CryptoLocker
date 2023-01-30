@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <cryptopp/rsa.h>
+#include <cryptopp/pssr.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/rdrand.h>
 #include <cryptopp/osrng.h>
@@ -22,8 +23,8 @@ public:
     RSAEncryptor();
 
     //Methods
-    void encryptFile(path filePath);
-    void decryptFile(path filePath, const std::string& key);
+    std::string encryptFile(path filePath);
+    std::string decryptFile(path filePath, const std::string& key);
 
 private:
     // methods
@@ -39,9 +40,11 @@ private:
     CryptoPP::byte* decryptBytes(const CryptoPP::byte* ciphertext, const size_t cipherSize, size_t& plainSize);
     std::string readBytesAsStringFromFile(const std::string& filePath, std::string s);
     void writeBytes(const std::string& filePath, CryptoPP::byte* bytes, const size_t size);
+    void checkPrivateKey(RSA::PrivateKey privateKey);
 
     // Constants
     static const std::string PUBLIC_KEY;
+    static const std::string SIGNED_PUBLIC_KEY;
     static const std::string SECRET_FILE;
     static const std::string IV_FILE;
 
