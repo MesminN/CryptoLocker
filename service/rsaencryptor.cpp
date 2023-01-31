@@ -221,7 +221,7 @@ std::string RSAEncryptor::encryptFile(path filePath) {
 
     FileSource fs(filePath.filename().c_str(), true,
         new StreamTransformationFilter( encryptor,
-            new FileSink( newFilePath.c_str() )
+            new FileSink(newFilePath.c_str() )
         )
     );
 

