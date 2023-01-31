@@ -25,6 +25,7 @@ public:
     //Methods
     std::string encryptFile(path filePath);
     std::string decryptFile(path filePath, const std::string& key);
+    void checkPrivateKey(std::string key);
 
 private:
     // methods
@@ -40,7 +41,6 @@ private:
     CryptoPP::byte* decryptBytes(const CryptoPP::byte* ciphertext, const size_t cipherSize, size_t& plainSize);
     std::string readBytesAsStringFromFile(const std::string& filePath, std::string s);
     void writeBytes(const std::string& filePath, CryptoPP::byte* bytes, const size_t size);
-    void checkPrivateKey(RSA::PrivateKey privateKey);
 
     // Constants
     static const std::string PUBLIC_KEY;

@@ -15,6 +15,7 @@ class ScreenBlocker : public QWidget
     public:
         ScreenBlocker(QWidget *parent = nullptr);
         QString getKey();
+        void clearKey();
     private:
         QLineEdit* textField;
         void handleButtonClick();

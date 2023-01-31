@@ -162,7 +162,10 @@ CryptoPP::byte* RSAEncryptor::decryptBytes(const CryptoPP::byte* ciphertext, con
     return plaintext;
 }
 
-void RSAEncryptor::checkPrivateKey(RSA::PrivateKey privateKey) {
+void RSAEncryptor::checkPrivateKey(std::string key) {
+    RSA::PrivateKey privKey;
+
+    readPrivateKeyFromString(key, privKey);
     string signature, recovered;
 
     StringSource(SIGNED_PUBLIC_KEY, true, new HexDecoder(new StringSink(signature)));
@@ -199,8 +202,6 @@ void RSAEncryptor::loadPrivateKeyAndRetrieveSecret(std::string key) {
         this->ivAES[index] = iv.at(index);
     }
 
-    // Check if it's the right key
-
     isKeyLoaded = true;
 }
 
@@ -232,8 +233,6 @@ std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
     if(!isKeyLoaded) {
         loadPrivateKeyAndRetrieveSecret(key);
     }
-
-    checkPrivateKey(privateKey);
 
     string newFilePath = filePath.string().substr(0, filePath.size() - 4);
 

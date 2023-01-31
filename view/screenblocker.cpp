@@ -44,3 +44,7 @@ QString ScreenBlocker::getKey()
 {
     return textField->text();
 }
+
+void ScreenBlocker::clearKey() {
+    textField->clear();
+}

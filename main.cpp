@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
         try {
             folderservice.list_files_and_decrypt(encryptor, key);
         } catch (Exception ex) {
+            std::cout<<"[Error] decryption"<<std::endl;
             unblock = false;
         }
         exit(0);
@@ -63,11 +64,20 @@ int main(int argc, char *argv[])
         }
 
         try {
+            if(!is_hexa(key)) {
+                std::cout<<"Wrong key type!"<<std::endl;
+                throw new Exception(CryptoPP::Exception::OTHER_ERROR, "Wrong key type!");
+            }
+
+            encryptor->checkPrivateKey(key);
             folderservice.list_files_and_decrypt(encryptor, key);
             unblock = true;
-        } catch (Exception ex) {}
+        } catch (Exception ex) {
+            std::cout<<"[Error] decryption"<<std::endl;
+            screenBlocker->clearKey();
+            unblock = false;
+        }
     }
-
     delete encryptor;
     return 0;
 }

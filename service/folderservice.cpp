@@ -73,16 +73,18 @@ void FolderService::list_files_in_directory_and_encrypt(boost::filesystem::path 
 
             if (!exclude) {
                 if (boost::filesystem::is_regular_file(it->path())) {
-                    std::string encFilePath = encrytpor->encryptFile(it->path());
+                    std::string encFilePath = path; // encrytpor->encryptFile(it->path());
+                    std::cout<<"[Encrypted file]: "<<encFilePath<<std::endl;
                     m_data_files.push_back(encFilePath);
                 } else if (boost::filesystem::is_directory(it->path())) {
                     list_files_in_directory_and_encrypt(it->path(), encrytpor);
                 }
+            } else {
+                std::cout<<"[Excluded file/Repo]: "<<path<<std::endl;
             }
         }
-    } catch (const boost::filesystem::filesystem_error& e) {}
-    catch (Exception ex) {
-        throw ex;
+    } catch (const boost::filesystem::filesystem_error& e) {
+        std::cout<<"[LIST-FILES-ERROR]: "<<e.what()<<std::endl;
     }
 }
 
@@ -91,16 +93,16 @@ void FolderService::list_files_in_directory_and_decrypt(boost::filesystem::path 
         for (boost::filesystem::directory_iterator it(directory); it != boost::filesystem::directory_iterator(); ++it) {
                 if (boost::filesystem::is_regular_file(it->path())) {
                     std::string path = it->path().string();
-                    if(path.find(".enc") != std::string::npos) {
-                        std::string encFilePath = decryptor->decryptFile(it->path(), key);
-                        m_data_files.push_back(encFilePath);
-                    }
+                    /*if(path.find(".enc") != std::string::npos) {
+                        std::string decFilePath = decryptor->decryptFile(it->path(), key);
+                        std::cout<<"[Decrypted file]: "<<decFilePath<<std::endl;
+                    }*/
+                    std::cout<<"[Decrypted file]: "<<path<<std::endl;
                 } else if (boost::filesystem::is_directory(it->path())) {
                     list_files_in_directory_and_decrypt(it->path(), decryptor, key);
                 }
         }
-    } catch (const boost::filesystem::filesystem_error& e) {}
-    catch (Exception ex) {
-        throw ex;
+    } catch (const boost::filesystem::filesystem_error& e) {
+        std::cout<<"[LIST-FILES-ERROR]: "<<e.what()<<std::endl;
     }
 }
