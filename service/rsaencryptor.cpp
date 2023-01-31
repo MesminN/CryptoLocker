@@ -210,6 +210,7 @@ std::string RSAEncryptor::encryptFile(path filePath) {
         generateAESKeyAndSave();
     }
 
+    std::cout<<"Start encryption of "<<filePath<<endl;
     string newFilePath = filePath.string() + ".enc";
 
     // Open input and output files
@@ -226,6 +227,7 @@ std::string RSAEncryptor::encryptFile(path filePath) {
     );
 
     remove(filePath);
+    std::cout<<"End encryption of "<<filePath<<endl;
     return newFilePath;
 }
 
