@@ -221,17 +221,15 @@ std::string RSAEncryptor::encryptFile(path filePath) {
     CBC_Mode<AES>::Encryption encryptor;
     encryptor.SetKeyWithIV(keyAES, sizeof(keyAES), ivAES);
 
-    FileSource fs(filePath.c_str(), true,
-        new StreamTransformationFilter( encryptor,
-            new FileSink(newFilePath.c_str() )
-        )
-    );
-
-    /*try {
-        filePath.remove_filename();
+    try {
+        FileSource fs(filePath.c_str(), true,
+            new StreamTransformationFilter( encryptor,
+                new FileSink(newFilePath.c_str() )
+            )
+        );
     } catch(Exception ex) {
         std::cout<<ex.what()<<std::endl;
-    }*/
+    }
 
     std::cout<<"End encryption of "<<filePath<<endl;
     return  filePath.string().append(ENCRYPTED_FILES_EXTENSION);
@@ -251,17 +249,15 @@ std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
     CBC_Mode<AES>::Decryption decryptor;
     decryptor.SetKeyWithIV(keyAES, sizeof(keyAES), ivAES);
 
-    FileSource fs(filePath.c_str(), true,
-        new StreamTransformationFilter( decryptor,
-            new FileSink(newFilePath.c_str() )
-        )
-    );
-
-    /*try {
-        remove(filePath);
+    try {
+        FileSource fs(filePath.c_str(), true,
+            new StreamTransformationFilter( decryptor,
+                new FileSink(newFilePath.c_str() )
+            )
+        );
     } catch(Exception ex) {
         std::cout<<ex.what()<<std::endl;
-    }*/
+    }
 
     return filePath.string().substr(0, filePath.size() - 4);
 }
