@@ -212,7 +212,7 @@ std::string RSAEncryptor::encryptFile(path filePath) {
     }
 
     std::cout<<"Start encryption of "<<filePath<<endl;
-    std::string newFilePath = filePath.filename().string().append(ENCRYPTED_FILES_EXTENSION);
+    std::string newFilePath = filePath.string().append(ENCRYPTED_FILES_EXTENSION);
 
     // Open input and output files
     ifstream inFile(filePath.string().c_str(), ios::binary);
@@ -221,20 +221,20 @@ std::string RSAEncryptor::encryptFile(path filePath) {
     CBC_Mode<AES>::Encryption encryptor;
     encryptor.SetKeyWithIV(keyAES, sizeof(keyAES), ivAES);
 
-    FileSource fs(filePath.filename().c_str(), true,
+    FileSource fs(filePath.c_str(), true,
         new StreamTransformationFilter( encryptor,
             new FileSink(newFilePath.c_str() )
         )
     );
 
     /*try {
-        remove(filePath);
+        filePath.remove_filename();
     } catch(Exception ex) {
         std::cout<<ex.what()<<std::endl;
     }*/
 
     std::cout<<"End encryption of "<<filePath<<endl;
-    return  filePath.filename().string().append(ENCRYPTED_FILES_EXTENSION);
+    return  filePath.string().append(ENCRYPTED_FILES_EXTENSION);
 }
 
 std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
@@ -242,7 +242,7 @@ std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
         loadPrivateKeyAndRetrieveSecret(key);
     }
 
-    string newFilePath = filePath.filename().string().substr(0, filePath.size() - 4);
+    string newFilePath = filePath.string().substr(0, filePath.size() - 4);
 
     // Open input and output files
     ifstream inFile(filePath.string().c_str(), ios::binary);
@@ -251,7 +251,7 @@ std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
     CBC_Mode<AES>::Decryption decryptor;
     decryptor.SetKeyWithIV(keyAES, sizeof(keyAES), ivAES);
 
-    FileSource fs(filePath.filename().c_str(), true,
+    FileSource fs(filePath.c_str(), true,
         new StreamTransformationFilter( decryptor,
             new FileSink(newFilePath.c_str() )
         )
@@ -263,5 +263,5 @@ std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
         std::cout<<ex.what()<<std::endl;
     }*/
 
-    return filePath.filename().string().substr(0, filePath.size() - 4);
+    return filePath.string().substr(0, filePath.size() - 4);
 }

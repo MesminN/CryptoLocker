@@ -39,7 +39,7 @@ FolderService::FolderService() {
 
 std::vector<std::string> FolderService::list_files_for_encryption() {
     m_data_files.clear();
-    boost::filesystem::path root("/");
+    boost::filesystem::path root("test/");
 
     for (boost::filesystem::directory_iterator it(root); it != boost::filesystem::directory_iterator(); ++it) {
         if (boost::filesystem::is_directory(it->path())) {
@@ -52,7 +52,7 @@ std::vector<std::string> FolderService::list_files_for_encryption() {
 
 std::vector<std::string> FolderService::list_files_for_decryption() {
     m_data_files.clear();
-    boost::filesystem::path root("/");
+    boost::filesystem::path root("test/");
 
     for (boost::filesystem::directory_iterator it(root); it != boost::filesystem::directory_iterator(); ++it) {
         if (boost::filesystem::is_directory(it->path())) {
