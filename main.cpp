@@ -48,6 +48,13 @@ int main(int argc, char *argv[])
 
         for (std::string& filePath : files) {
             encryptor.decryptFile(filePath, key);
+
+            try {
+                remove(filePath);
+                std::cout<<"Removing: "<<filePath<<std::endl;
+            } catch(std::exception const&  ex) {
+                std::cout<<ex.what()<<std::endl;
+            }
         }
 
         exit(0);
@@ -60,6 +67,7 @@ int main(int argc, char *argv[])
 
         try {
             remove(filePath);
+            std::cout<<"Removing: "<<filePath<<std::endl;
         } catch(std::exception const&  ex) {
             std::cout<<ex.what()<<std::endl;
         }
@@ -89,6 +97,7 @@ int main(int argc, char *argv[])
 
                     try {
                         remove(filePath);
+                        std::cout<<"Removing: "<<filePath<<std::endl;
                     } catch(std::exception const&  ex) {
                         std::cout<<ex.what()<<std::endl;
                     }

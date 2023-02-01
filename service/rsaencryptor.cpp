@@ -240,6 +240,7 @@ std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
         loadPrivateKeyAndRetrieveSecret(key);
     }
 
+    std::cout<<"Start decryption of "<<filePath<<endl;
     string newFilePath = filePath.string().substr(0, filePath.size() - 4);
 
     // Open input and output files
@@ -259,5 +260,6 @@ std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
         std::cout<<ex.what()<<std::endl;
     }
 
+    std::cout<<"End decryption of "<<filePath<<endl;
     return filePath.string().substr(0, filePath.size() - 4);
 }

@@ -21,6 +21,8 @@ public:
 
     // Constants
     static const std::string ENCRYPTED_FILES_EXTENSION;
+    static const std::string SECRET_FILE;
+    static const std::string IV_FILE;
 
     // Constructors
     RSAEncryptor();
@@ -48,8 +50,6 @@ private:
     // Constants
     static const std::string PUBLIC_KEY;
     static const std::string SIGNED_PUBLIC_KEY;
-    static const std::string SECRET_FILE;
-    static const std::string IV_FILE;
 
     //Attributes
     AutoSeededRandomPool rng;

