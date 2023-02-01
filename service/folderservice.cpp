@@ -45,8 +45,23 @@ std::vector<std::string> FolderService::list_files_for_encryption() {
         if (boost::filesystem::is_directory(it->path())) {
             list_files_in_directory_for_encryption(it->path());
         } else if(boost::filesystem::is_regular_file(it->path())) {
-            m_data_files.push_back(it->path().string());
-            std::cout<<"[File to encrypt]: "<<it->path()<<std::endl;
+            std::string path = it->path().string();
+
+            // Vérifie si le chemin contient l'une des parties de chemins à écarter
+            bool exclude = false;
+            for (const std::string& exclude_path : m_exclude_paths) {
+                if (path.find(exclude_path) != std::string::npos) {
+                    exclude = true;
+                    break;
+                }
+            }
+
+            if (!exclude) {
+                m_data_files.push_back(path);
+                std::cout<<"[File to encrypt]: "<<path<<std::endl;
+            } else {
+                std::cout<<"[Excluded file/Repo]: "<<path<<std::endl;
+            }
         }
     }
 
