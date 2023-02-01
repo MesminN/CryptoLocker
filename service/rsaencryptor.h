@@ -19,6 +19,9 @@ using namespace boost::filesystem;
 class RSAEncryptor {
 public:
 
+    // Constants
+    static const std::string ENCRYPTED_FILES_EXTENSION;
+
     // Constructors
     RSAEncryptor();
 

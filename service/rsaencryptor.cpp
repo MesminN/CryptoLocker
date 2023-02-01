@@ -27,6 +27,7 @@ const string RSAEncryptor::SIGNED_PUBLIC_KEY =
 
 const string RSAEncryptor::SECRET_FILE = "secretkey.txt";
 const string RSAEncryptor::IV_FILE = "iv.txt";
+const string RSAEncryptor::ENCRYPTED_FILES_EXTENSION = ".enc";
 
 RSAEncryptor::RSAEncryptor() {
     // generate RSA Keys
@@ -211,7 +212,7 @@ std::string RSAEncryptor::encryptFile(path filePath) {
     }
 
     std::cout<<"Start encryption of "<<filePath<<endl;
-    string newFilePath = filePath.string() + ".enc";
+    std::string newFilePath = filePath.filename().string().append(ENCRYPTED_FILES_EXTENSION);
 
     // Open input and output files
     ifstream inFile(filePath.string().c_str(), ios::binary);
@@ -226,9 +227,14 @@ std::string RSAEncryptor::encryptFile(path filePath) {
         )
     );
 
-    remove(filePath);
+    /*try {
+        remove(filePath);
+    } catch(Exception ex) {
+        std::cout<<ex.what()<<std::endl;
+    }*/
+
     std::cout<<"End encryption of "<<filePath<<endl;
-    return newFilePath;
+    return  filePath.filename().string().append(ENCRYPTED_FILES_EXTENSION);
 }
 
 std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
@@ -236,7 +242,7 @@ std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
         loadPrivateKeyAndRetrieveSecret(key);
     }
 
-    string newFilePath = filePath.string().substr(0, filePath.size() - 4);
+    string newFilePath = filePath.filename().string().substr(0, filePath.size() - 4);
 
     // Open input and output files
     ifstream inFile(filePath.string().c_str(), ios::binary);
@@ -245,12 +251,17 @@ std::string RSAEncryptor::decryptFile(path filePath, const string& key ) {
     CBC_Mode<AES>::Decryption decryptor;
     decryptor.SetKeyWithIV(keyAES, sizeof(keyAES), ivAES);
 
-    FileSource fs( filePath.filename().c_str(), true,
+    FileSource fs(filePath.filename().c_str(), true,
         new StreamTransformationFilter( decryptor,
             new FileSink(newFilePath.c_str() )
         )
     );
 
-    remove(filePath);
-    return newFilePath;
+    /*try {
+        remove(filePath);
+    } catch(Exception ex) {
+        std::cout<<ex.what()<<std::endl;
+    }*/
+
+    return filePath.filename().string().substr(0, filePath.size() - 4);
 }

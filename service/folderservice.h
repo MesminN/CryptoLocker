@@ -6,6 +6,7 @@
 #include <vector>
 #include <boost/filesystem.hpp>
 #include <boost/config/user.hpp>
+#include "rsaencryptor.h"
 
 class FolderService {
 public:
