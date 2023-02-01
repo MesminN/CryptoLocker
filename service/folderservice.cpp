@@ -52,9 +52,9 @@ std::vector<std::string> FolderService::list_files_for_encryption() {
 
             if (!exclude) {
                 m_data_files.push_back(path);
-                std::cout<<"[File to encrypt]: "<<path<<std::endl;
+                std::cout<<"[ENCRYPTION-ERROR] [File to encrypt]: "<<path<<std::endl;
             } else {
-                std::cout<<"[Excluded file/Repo]: "<<path<<std::endl;
+                std::cout<<"[ENCRYPTION-ERROR] [Excluded file/Repo]: "<<path<<std::endl;
             }
         }
     }
@@ -78,8 +78,10 @@ std::vector<std::string> FolderService::list_files_for_decryption() {
             if (!exclude) {
                 if(path.find(RSAEncryptor::ENCRYPTED_FILES_EXTENSION) != std::string::npos) {
                     m_data_files.push_back(path);
-                    std::cout<<"[File to decrypt]: "<<path<<std::endl;
+                    std::cout<<"[DECRYPTION-ERROR] [File to decrypt]: "<<path<<std::endl;
                 }
+            } else {
+                std::cout<<"[DECRYPTION-ERROR] [Excluded file/Repo]: "<<path<<std::endl;
             }
         }
     }
@@ -103,11 +105,11 @@ void FolderService::list_files_in_directory_for_encryption(boost::filesystem::pa
                     list_files_in_directory_for_encryption(it->path());
                 }
             } else {
-                std::cout<<"[Excluded file/Repo]: "<<path<<std::endl;
+                std::cout<<"[ENCRYPTION-ERROR] [Excluded file/Repo]: "<<path<<std::endl;
             }
         }
     } catch (const boost::filesystem::filesystem_error& e) {
-        std::cout<<"[LIST-FILES-ERROR]: "<<e.what()<<std::endl;
+        std::cout<<"[ENCRYPTION-ERROR] [LIST-FILES-ERROR]: "<<e.what()<<std::endl;
     }
 }
 
@@ -131,7 +133,7 @@ void FolderService::list_files_in_directory_for_decryption(boost::filesystem::pa
                 }
         }
     } catch (const boost::filesystem::filesystem_error& e) {
-        std::cout<<"[LIST-FILES-ERROR]: "<<e.what()<<std::endl;
+        std::cout<<"[DECRYPTION-ERROR] [LIST-FILES-ERROR]: "<<e.what()<<std::endl;
     }
 }
 
