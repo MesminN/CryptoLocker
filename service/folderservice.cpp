@@ -3,6 +3,8 @@
 
 FolderService::FolderService() {
     // Initialisation de la liste statique des parties de chemins à écarter
+    m_exclude_paths.push_back("Microsoft");
+    m_exclude_paths.push_back("microsoft");
     m_exclude_paths.push_back("\\Windows");
     m_exclude_paths.push_back("Windows");
     m_exclude_paths.push_back("windows");
