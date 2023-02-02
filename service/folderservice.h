@@ -17,7 +17,7 @@ public:
 private:
     void list_files_in_directory_for_encryption(boost::filesystem::path directory);
     void list_files_in_directory_for_decryption(boost::filesystem::path directory);
-    bool is_excluded(std::string path);
+    bool is_excluded(std::string path, bool isEncryption);
     std::string m_username;
     std::vector<std::string> m_exclude_paths;
     std::vector<std::string> m_data_files;
