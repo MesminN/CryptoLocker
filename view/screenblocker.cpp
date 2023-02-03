@@ -6,7 +6,20 @@ ScreenBlocker::ScreenBlocker(QWidget *parent) : QWidget(parent)
     QVBoxLayout* layout = new QVBoxLayout(this);
 
     // Create a label for the "Hello" text
-    QLabel* label = new QLabel("Hello", this);
+    QLabel* label = new QLabel("CryptoLocker\n\n"
+                               "Your important files encryption produced on this computer: "
+                               "photos, videos, documents, etc.\n"
+                               "If you see this text, but do not see the \"CryptoLocker\" window, "
+                               "then your antivirus deleted \"CryptoLocker\" from computer.\n"
+                               "If you need your files, you have to recover \"CryptoLocker\" from the antivirus "
+                               "quarantine, or find a copy of \"CryptoLocker\" in the Internet and start it again.\n"
+                               "You can download \"CryptoLocker\" from the link given below.\n"
+                               "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\n"
+                               "Approximate destruction time of your private key:\n"
+                               "10h00\n"
+                               "If the time is finished you are unable to recover files anymore! Simply remove this "
+                               "wallpaper from your desktop."
+                               , this);
     label->setAlignment(Qt::AlignCenter);
     layout->addWidget(label);
 
